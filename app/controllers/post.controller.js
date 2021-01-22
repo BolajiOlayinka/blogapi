@@ -1,4 +1,4 @@
-const { request } = require('express');
+// const express = require('express');
 const Post= require('../models/post.model.js');
 
 // Create and Save a new Post
@@ -44,12 +44,19 @@ const post = new Post({
 exports.getAll = (req, res) => {
     Post.find()
         .then(newpost => {
-            const page = parseInt(req.query.page);
-    const limit = parseInt(req, query.limit);
+            // console.log(req)
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
     const startIndex = (page - 1) * limit;
     const endIndex =page * limit
     const result= newpost.slice(startIndex,endIndex)
-            res.send(result);
+    if (!page){
+        res.send(newpost);
+    }else{
+        res.send(result);
+        console.log(result)
+    }
+           
         }).catch(err => {
         res.status(500).send({
             message: err.message || "Some error occurred while retrieving the post."
@@ -94,7 +101,7 @@ exports.update = (req, res) => {
     subtitle:req.body.subtitle,
     article:req.body.article,
     author: req.body.author || 'Bolaji Olayinka'
-    
+
     }, {new: true})
         .then(newpost => {
             if(newpost) {
