@@ -1,3 +1,4 @@
+const { request } = require('express');
 const Post= require('../models/post.model.js');
 
 // Create and Save a new Post
@@ -8,29 +9,47 @@ exports.create = (req, res) => {
             message: "Please enter post title."
         });
     }
-
-    // Create a book
-    const post = new Post({
-        title: req.body.title,
-        author: req.body.author || 'Bolaji Olayinka'
-    });
-
-    // Save Book
-    post.save()
-        .then(newpost => {
-            res.send(newpost);
-        }).catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while creating the post."
-        });
-    });
+    
+    Post.find({title:req.body.title})
+    .exec()
+    .then(newpost=>{
+        if (newpost.length >=1){
+            return res.status(409).json({
+                message:'Post Already Exist'
+            });
+        }else{
+// Create a post
+const post = new Post({
+    title: req.body.title,
+    subtitle:req.body.subtitle,
+    article:req.body.article,
+    author: req.body.author || 'Bolaji Olayinka'
+});
+ // Save Posts
+ post.save()
+ .then(newpost => {
+     res.send(newpost);
+ }).catch(err => {
+ res.status(500).send({
+     message: err.message || "Some error occurred while creating the post."
+ });
+});
+        }
+    })
+    
+   
 };
 
 // Get all and return all posts.
 exports.getAll = (req, res) => {
     Post.find()
         .then(newpost => {
-            res.send(newpost);
+            const page = parseInt(req.query.page);
+    const limit = parseInt(req, query.limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex =page * limit
+    const result= newpost.slice(startIndex,endIndex)
+            res.send(result);
         }).catch(err => {
         res.status(500).send({
             message: err.message || "Some error occurred while retrieving the post."
@@ -70,9 +89,12 @@ exports.update = (req, res) => {
     }
 
     // Find book and update it
-    Post.findByIdAndUpdate(req.params.postId, {
+    Post.updateOne(req.params.postId, {
         title: req.body.title,
-        author: req.body.author || "Bolaji Olayinka"
+    subtitle:req.body.subtitle,
+    article:req.body.article,
+    author: req.body.author || 'Bolaji Olayinka'
+    
     }, {new: true})
         .then(newpost => {
             if(newpost) {

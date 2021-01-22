@@ -5,7 +5,12 @@ const PostSchema = mongoose.Schema({
      type: String,
      required: true
     },
-    author: String
+    author: String,
+    subtitle:String,
+    article:{
+        type:String,
+        required:true,
+    }
 }, {
     timestamps: true
 });
